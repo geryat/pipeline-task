@@ -22,6 +22,6 @@ ENV PATH=/home/appuser/.local/bin:$PATH
  
 USER appuser
  
-EXPOSE 5000
+EXPOSE 8080
  
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
