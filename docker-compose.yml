@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pipeline-task:${VERSION:-latest}
+    container_name: pipeline-task
+    ports:
+      - "8080:5000"
+    restart: unless-stopped
