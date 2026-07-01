@@ -1,0 +1,4 @@
+services:
+  app:
+    image: ${DOCKERHUB_USERNAME}/pipeline-task:${VERSION:-latest}
+    build: !reset null
