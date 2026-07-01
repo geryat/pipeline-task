@@ -64,3 +64,23 @@ jobs:
             docker tag pipeline-task:$VERSION ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
             docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
           fi
+
+      - name: Pull and verify image from Docker Hub
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          echo "Pulling image from Docker Hub..."
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
+
+          echo "Running container..."
+          docker run -d --name smoke-test -p 5000:5000 ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
+
+          echo "Waiting for container to be ready..."
+          sleep 5
+
+          echo "Hitting health endpoint..."
+          curl --fail http://localhost:5000/health
+
+          echo "Smoke test passed, cleaning up..."
+          docker stop smoke-test
+          docker rm smoke-test
