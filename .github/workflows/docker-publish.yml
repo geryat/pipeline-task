@@ -63,9 +63,9 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          docker buildx imagetools create \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest \
-            ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
 
       - name: Pull latest image
         env:
