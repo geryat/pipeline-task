@@ -58,9 +58,14 @@ jobs:
         run: |
           docker tag pipeline-task:$VERSION ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
-          sleep 3
-          docker tag pipeline-task:$VERSION ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
+
+      - name: Update latest tag on Docker Hub
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest \
+            ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
 
       - name: Pull latest image
         env:
