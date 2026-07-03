@@ -4,10 +4,6 @@ on:
   push:
     tags: [ "v*.*.*" ]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 permissions:
   contents: read
   packages: write
@@ -20,13 +16,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build image with Docker Compose
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: docker compose build app
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -36,23 +43,48 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
+      # docker tag and docker push have no docker compose equivalent
+      # for multi-registry pushing — these two commands are unavoidable
+      - name: Tag and push to GHCR
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          docker tag pipeline-task:$VERSION ghcr.io/${{ github.repository }}:$VERSION
+          docker tag pipeline-task:$VERSION ghcr.io/${{ github.repository }}:latest
+          docker push ghcr.io/${{ github.repository }}:$VERSION
+          docker push ghcr.io/${{ github.repository }}:latest
 
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Tag and push to Docker Hub
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          docker tag pipeline-task:$VERSION ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
+          docker tag pipeline-task:$VERSION ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
+
+      - name: Pull and verify image from Docker Hub
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          echo "Pulling image from Docker Hub..."
+          docker compose -f docker-compose.yml -f docker-compose.remote.yml pull
+
+          echo "Running container..."
+          docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
+
+          echo "Waiting for container to be ready..."
+          sleep 5
+
+          echo "=== docker compose ps ==="
+          docker compose -f docker-compose.yml -f docker-compose.remote.yml ps -a
+
+          echo "=== docker compose logs ==="
+          docker compose -f docker-compose.yml -f docker-compose.remote.yml logs
+
+          echo "Hitting health endpoint..."
+          curl --fail http://localhost:8080/health
+
+          echo "Smoke test passed, cleaning up..."
+          docker compose -f docker-compose.yml -f docker-compose.remote.yml down
