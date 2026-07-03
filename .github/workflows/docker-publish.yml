@@ -64,7 +64,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           docker buildx imagetools create \
-            --tag ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest \
             ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
 
       - name: Pull latest image
