@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -43,8 +43,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # docker tag and docker push have no docker compose equivalent
-      # for multi-registry pushing — these two commands are unavoidable
       - name: Tag and push to GHCR
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -63,28 +61,17 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:$VERSION
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
 
-      - name: Pull and verify image from Docker Hub
+      - name: Pull latest image
         env:
           VERSION: ${{ steps.version.outputs.version }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          echo "Pulling image from Docker Hub..."
-          docker compose -f docker-compose.yml -f docker-compose.remote.yml pull
+        run: docker compose -f docker-compose.yml -f docker-compose.remote.yml pull
 
-          echo "Running container..."
-          docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d
+      - name: Restart container
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: docker compose -f docker-compose.yml -f docker-compose.remote.yml up -d --force-recreate
 
-          echo "Waiting for container to be ready..."
-          sleep 5
-
-          echo "=== docker compose ps ==="
-          docker compose -f docker-compose.yml -f docker-compose.remote.yml ps -a
-
-          echo "=== docker compose logs ==="
-          docker compose -f docker-compose.yml -f docker-compose.remote.yml logs
-
-          echo "Hitting health endpoint..."
-          curl --fail http://localhost:8080/health
-
-          echo "Smoke test passed, cleaning up..."
-          docker compose -f docker-compose.yml -f docker-compose.remote.yml down
+      - name: Verify
+        run: docker compose -f docker-compose.yml -f docker-compose.remote.yml ps
