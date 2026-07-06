@@ -1,4 +1,8 @@
 services:
   app:
-    image: ${DOCKERHUB_USERNAME}/pipeline-task:${VERSION:-latest}
+    image: ${DOCKERHUB_USERNAME}/pipeline-task:${IMAGE_TAG:-latest}
     build: !reset null
+    ports:
+      - "${APP_PORT:-8080}:5000"
+    environment:
+      - APP_VERSION=${IMAGE_TAG:-latest}

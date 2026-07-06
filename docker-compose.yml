@@ -3,8 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: pipeline-task:${VERSION:-latest}
+      args:
+        APP_VERSION: ${IMAGE_TAG:-dev}
+    image: pipeline-task:${IMAGE_TAG:-latest}
     container_name: pipeline-task
     ports:
-      - "8080:5000"
+      - "${APP_PORT:-8080}:5000"
     restart: unless-stopped
+    environment:
+      - APP_VERSION=${IMAGE_TAG:-latest}
