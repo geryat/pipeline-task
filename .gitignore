@@ -1,1 +1,17 @@
+# GitHub Actions runner
 actions-runner/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Docker
+.dockerignore
+
+# Mac
+.DS_Store
+
+# Environment
+.env
