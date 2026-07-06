@@ -53,7 +53,22 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+ 
+      - name: Create GitHub Release
+	uses: softprops/action-gh-release@v2
+	with:
+	    generate_release_notes: true
+	    name: Release ${{ steps.version.outputs.version }}
+	    body: |
+		## Docker Images
+            - GHCR: `ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}`
+            - Docker Hub: `${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:${{ steps.version.outputs.version }}`
+ 
+            ## Pull & Run
+            bash
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:${{ steps.version.outputs.version }}
+            docker run -d -p 8080:5000 ${{ secrets.DOCKERHUB_USERNAME }}/pipeline-task:${{ steps.version.outputs.version }}
+         
   deploy:
     runs-on: self-hosted
     needs: build-and-push
