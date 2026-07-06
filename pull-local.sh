@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-geryat}"
+DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-gerytravelio}"
 VERSION="${VERSION:-latest}"
 IMAGE="$DOCKERHUB_USERNAME/pipeline-task:$VERSION"
 

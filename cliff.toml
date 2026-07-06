@@ -1,0 +1,29 @@
+[changelog]
+header = "# Changelog\n"
+body = """
+{% if version %}\
+## {{ version }} - {% if timestamp %}{{ timestamp | date(format="%Y-%m-%d") }}{% else %}unreleased{% endif %}
+{% else %}\
+## unreleased
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {{ commit.message }} ({{ commit.id | truncate(length=7, end="") }})
+{% endfor %}
+{% endfor %}\n
+"""
+trim = true
+
+[git]
+conventional_commits = true
+commit_parsers = [
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^docs", group = "Documentation" },
+  { message = "^refactor", group = "Refactoring" },
+  { message = "^chore", group = "Chores" },
+  { message = "^test", group = "Tests" },
+]
+filter_commits = false
+tag_pattern = "v[0-9]*"
