@@ -5,6 +5,8 @@
 
 - add version endpoint (dcb58ff)
 
+- add version endpoint (defc3c0)
+
 
 ## v0.0.20 - 2026-07-06
 
