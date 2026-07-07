@@ -9,6 +9,10 @@
 
 - flexible paths filter and lint for any folder structure (f324793)
 
+- add conftest.py to resolve app module path (6975d4c)
+
+- correct pytest path to testapp.py (a3ddf9a)
+
 
 ### Chores
 
@@ -24,6 +28,12 @@
 - add version endpoint (44d11c9)
 
 - add version endpoint (e08b00e)
+
+- redesign API response format #major (0b7611c)
+
+- redesign API response format #major (31819ce)
+
+- redesign API response format #major2 (7c3e1ab)
 
 
 ## v0.0.20 - 2026-07-06

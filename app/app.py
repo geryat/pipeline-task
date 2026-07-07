@@ -1,3 +1,5 @@
+# v1.0.0 - major release
+
 from flask import Flask, jsonify
 
 app = Flask(__name__)
