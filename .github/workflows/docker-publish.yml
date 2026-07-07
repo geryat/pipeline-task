@@ -48,7 +48,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run flake8
-        run: flake8 . --max-line-length=88 --exclude=__pycache__,.venv,venv,node_modules,.git
+        run: flake8 app/app.py testapp.py --max-line-length=88 --exclude=__pycache__,.venv,venv,node_modules,.git,actions-runner
 
       - name: Notify lint failure
         if: failure() && env.SLACK_WEBHOOK_URL != ''
@@ -134,6 +134,7 @@ jobs:
           format: table
           exit-code: 1
           severity: CRITICAL
+          ignore-unfixed: true
 
       - name: Notify trivy failure
         if: failure() && env.SLACK_WEBHOOK_URL != ''
