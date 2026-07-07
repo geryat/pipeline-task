@@ -13,6 +13,10 @@
 
 - correct pytest path to testapp.py (a3ddf9a)
 
+- trigger full pipeline #patch (8180189)
+
+- ignore unfixed trivy vulnerabilities (2818678)
+
 
 ### Chores
 
