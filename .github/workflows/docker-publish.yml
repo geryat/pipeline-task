@@ -25,10 +25,10 @@ jobs:
         with:
           filters: |
             app:
-              - 'app.py'
-              - 'requirements.txt'
-              - 'Dockerfile'
-              - 'docker-compose.yml'
+              - '**/*.py'
+              - '**/requirements*.txt'
+              - '**/Dockerfile'
+              - '**/docker-compose*.yml'
 
   # ── 2. lint ────────────────────────────────────────────────────────────────
   lint:
@@ -48,7 +48,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run flake8
-        run: flake8 app.py tests/ --max-line-length=88 --exclude=__pycache__,.venv,venv
+        run: flake8 . --max-line-length=88 --exclude=__pycache__,.venv,venv,node_modules,.git
 
       - name: Notify lint failure
         if: failure() && env.SLACK_WEBHOOK_URL != ''
