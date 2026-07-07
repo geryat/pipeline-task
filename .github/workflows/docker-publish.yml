@@ -198,9 +198,14 @@ jobs:
       - name: Save current version for rollback
         id: current
         run: |
-          CURRENT=$(docker inspect pipeline-task --format='{{.Config.Image}}' 2>/dev/null || echo "none")
-          echo "image=$CURRENT" >> "$GITHUB_OUTPUT"
-          echo "Current running image: $CURRENT"
+          CURRENT=$(docker inspect pipeline-task --format='{{.Config.Image}}' 2>/dev/null)
+          if [ -z "$CURRENT" ]; then
+            echo "image=none" >> "$GITHUB_OUTPUT"
+            echo "Current running image: none"
+          else
+            echo "image=$CURRENT" >> "$GITHUB_OUTPUT"
+            echo "Current running image: $CURRENT"
+          fi
 
       - name: Pull latest image
         env:
