@@ -81,7 +81,7 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run pytest
-        run: pytest tests/ -v
+        run: pytest testapp.py -v
 
       - name: Notify test failure
         if: failure() && env.SLACK_WEBHOOK_URL != ''
