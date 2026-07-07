@@ -51,7 +51,7 @@ jobs:
         run: flake8 app.py tests/ --max-line-length=88 --exclude=__pycache__,.venv,venv
 
       - name: Notify lint failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -84,7 +84,7 @@ jobs:
         run: pytest tests/ -v
 
       - name: Notify test failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -136,7 +136,7 @@ jobs:
           severity: CRITICAL
 
       - name: Notify trivy failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -174,7 +174,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Notify build failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -222,7 +222,7 @@ jobs:
           echo "Health check passed"
 
       - name: Rollback on health check failure
-        if: failure() && steps.current.outputs.image != 'none'
+        if: failure() && env.SLACK_WEBHOOK_URL != '' && steps.current.outputs.image != 'none'
         run: |
           echo "Health check failed — rolling back to ${{ steps.current.outputs.image }}..."
           docker stop pipeline-task || true
@@ -235,7 +235,7 @@ jobs:
           echo "Rollback complete"
 
       - name: Notify rollback
-        if: failure() && steps.current.outputs.image != 'none'
+        if: failure() && env.SLACK_WEBHOOK_URL != '' && steps.current.outputs.image != 'none'
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -247,7 +247,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
       - name: Notify deploy failure (no previous version)
-        if: failure() && steps.current.outputs.image == 'none'
+        if: failure() && env.SLACK_WEBHOOK_URL != '' && steps.current.outputs.image == 'none'
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -259,7 +259,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
       - name: Notify deploy success
-        if: success()
+        if: success() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.27.0
         with:
           payload: |
@@ -271,7 +271,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
       - name: Show container status
-        if: success()
+        if: success() && env.SLACK_WEBHOOK_URL != ''
         run: docker compose -f docker-compose.yml -f docker-compose.remote.yml ps
 
   # ── 6. release (only on version tags) ─────────────────────────────────────
