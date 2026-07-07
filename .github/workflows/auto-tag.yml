@@ -2,7 +2,7 @@ name: Auto Version Tag
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
 
 jobs:
   auto-tag:
@@ -15,11 +15,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           WITH_V: true
-          DEFAULT_BUMP: patch
+          DEFAULT_BUMP: none
           RELEASE_BRANCHES: main
