@@ -17,6 +17,16 @@
 
 - ignore unfixed trivy vulnerabilities (2818678)
 
+- handle empty container state for rollback (0157c64)
+
+- retrigger pipeline #major (b03f1e7)
+
+- retrigger pipeline #major2 (ecee159)
+
+- fix rollback step and retrigger #major (3f9f070)
+
+- remove slack steps from workflow (5dcabdc)
+
 
 ### Chores
 
@@ -38,6 +48,10 @@
 - redesign API response format #major (31819ce)
 
 - redesign API response format #major2 (7c3e1ab)
+
+- add info endpoint #major (3619bcd)
+
+- add info endpoint #major2 (a17a5f7)
 
 
 ## v0.0.20 - 2026-07-06
