@@ -27,6 +27,7 @@ def test_version(client):
     assert response.status_code == 200
     assert response.json["version"] == "1.0.0"
 
+
 def test_ping(client):
     response = client.get("/ping")
     assert response.status_code == 200

@@ -30,6 +30,7 @@ def info():
         container="Docker"
     ), 200
 
+
 @app.route("/ping")
 def ping():
     return jsonify(message="pong"), 200
